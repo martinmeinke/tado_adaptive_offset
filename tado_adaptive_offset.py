@@ -8,8 +8,14 @@ import json
 USERNAME = ""
 PASSWORD = ""
 
-OFFSET_CONFIG = {"VA3516008704": {"base_temp": 12.0, "offset_factor": 0.1},
-                 "VA3146778880": {"base_temp": 12.0, "offset_factor": 0.12}}
+# configure temperature using a linear function
+# OFFSET_CONFIG = {"VA3516008704": {"base_temp": 12.0, "offset_factor": 0.1},
+#                  "VA3146778880": {"base_temp": 12.0, "offset_factor": 0.12}}
+
+# configure temperature using a list of thresholds eg. temp < 4.0° -> offset = -2.0°
+# Add one entry per DEVICE_ID. You can find the DEVICE_ID's in the Tado app
+OFFSET_CONFIG = {"VA3516008704": [{"threshold": 12.0, "offset": -1.0}, {"threshold": 4.0, "offset": -2.0}],
+                 "VA3146778880": [{"threshold": 12.0, "offset": -1.0}, {"threshold": 4.0, "offset": -2.0}]}
 
 ME_URL = "https://my.tado.com/api/v2/me"
 WEATHER_URL = "https://my.tado.com/api/v2/homes/{}/weather"
@@ -76,8 +82,19 @@ if __name__ == '__main__':
             continue
 
         c = OFFSET_CONFIG[did]
-        target_offset = min(0.0, (outside_temp - c["base_temp"]) * c["offset_factor"])
-        offset = set_offset_temp(did, target_offset)
+        if "base_temp" in c:
+            target_offset = min(0.0, (outside_temp - c["base_temp"]) * c["offset_factor"])
+        elif isinstance(c, list):
+            target_offset = 0.0
+            for entry in sorted(c, key=lambda x: x["threshold"]):
+                if outside_temp <= entry["threshold"]:
+                    target_offset = entry["offset"]
+                    break
+        else:
+            print("No valid configuration found! Setting offset of 0.0")
+            target_offset = 0.0
+
+        offset = set_offset_temp(did, round(target_offset))
         print("Offset for {}".format(did), offset)
 
     sys.exit(0)
