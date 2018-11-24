@@ -12,7 +12,7 @@ PASSWORD = ""
 # OFFSET_CONFIG = {"VA3516008704": {"base_temp": 12.0, "offset_factor": 0.1},
 #                  "VA3146778880": {"base_temp": 12.0, "offset_factor": 0.12}}
 
-# configure temperature using a list of thresholds eg. temp < 4.0° -> offset = -2.0°
+# configure temperature using a list of thresholds eg. temp < 4.0 -> offset = -2.0
 # Add one entry per DEVICE_ID. You can find the DEVICE_ID's in the Tado app
 OFFSET_CONFIG = {"VA3516008704": [{"threshold": 12.0, "offset": -1.0}, {"threshold": 4.0, "offset": -2.0}],
                  "VA3146778880": [{"threshold": 12.0, "offset": -1.0}, {"threshold": 4.0, "offset": -2.0}]}
